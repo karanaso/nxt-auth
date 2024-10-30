@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test-watch": "jest --watchAll \"./src/**/*.spec.ts\"",
-    "test-dev": "npm run dev & npm run test-watch",
+    "test-dev": "npm run test-watch",
     "test": "npm run build && npm run test-watch",
     "dev": "npm run tsc-watch & npm run node-watch",
     "tsc-watch": "tsc --watch",
