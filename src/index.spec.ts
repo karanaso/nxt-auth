@@ -1,5 +1,5 @@
-import "dotenv/config"
-describe("service", () => { 
+import "dotenv/config";
+describe("service", () => {
   const server = `http://localhost:${process.env.PORT || 3000}`;
   it("should fetch /", async () => {
     const response = await fetch(server);
@@ -76,7 +76,7 @@ describe("service", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email: 'test@test.com',
+            email: "test@test.com",
           }),
         });
         expect(response.status).toBe(400);
@@ -134,8 +134,8 @@ describe("service", () => {
       });
     });
 
-    describe('/refresh-token', () => {
-      it('should not refresh the token because the token is not set', async () => {
+    describe("/refresh-token", () => {
+      it("should not refresh the token because the token is not set", async () => {
         const response = await fetch(`${server}/refresh-token`, {
           method: "POST",
           headers: {
@@ -147,23 +147,23 @@ describe("service", () => {
         expect(data.message).toBe("Token is required");
       });
 
-      it('should not refresh the token because the token is INVALID', async () => {
+      it("should not refresh the token because the token is INVALID", async () => {
         const response = await fetch(`${server}/refresh-token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            token: 'invalid-token',
-          })
+            token: "invalid-token",
+          }),
         });
         expect(response.status).toBe(401);
         const data = await response.json();
         expect(data.message).toBe("Invalid token");
       });
 
-      it('should refresh the token', async () => {
-          const response = await fetch(`${server}/signin`, {
+      it("should refresh the token", async () => {
+        const response = await fetch(`${server}/signin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -192,6 +192,55 @@ describe("service", () => {
         const refreshData = await refreshResponse.json();
         expect(refreshData.message).toBe("Token refreshed successfully");
         expect(refreshData.token).toBeDefined();
+      });
+    });
+
+    describe("/verify-token", () => {
+      it("should not verify the token because the token is INVALID", async () => {
+        const response = await fetch(`${server}/verify-token`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: "invalid-token",
+          }),
+        });
+        expect(response.status).toBe(401);
+        const data = await response.json();
+        expect(data.message).toBe("Invalid token");
+      });
+
+      it("should verify the token", async () => {
+        const response = await fetch(`${server}/signin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.message).toBe("User logged in");
+        expect(data.token).toBeDefined();
+        
+        const verifyResponse = await fetch(`${server}/verify-token`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: data.token,
+          }),
+        });
+
+        expect(verifyResponse.status).toBe(200);
+        const verifyData = await verifyResponse.json();
+        expect(verifyData.message).toBe("Token is valid");
+        expect(verifyData.valid).toBe(true);
       });
     });
   });
