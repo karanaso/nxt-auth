@@ -1,0 +1,38 @@
+{
+  "name": "nxt-auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test-watch": "jest --watchAll \"./src/**/*.spec.ts\"",
+    "test-dev": "npm run dev & npm run test-watch",
+    "test": "npm run build && npm run test-watch",
+    "dev": "npm run tsc-watch & npm run node-watch",
+    "tsc-watch": "tsc --watch",
+    "node-watch": "nodemon ./build/index.js",
+    "build": "tsc --build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-typescript": "^7.26.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.7",
+    "tsup": "^8.3.5"
+  },
+  "dependencies": {
+    "argon2": "^0.41.1",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jest": "^29.7.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.10.0",
+    "typescript": "^5.6.3"
+  }
+}
