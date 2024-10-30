@@ -1,11 +1,11 @@
 import { createClient } from "redis";
 
 var client: any = null;
-const connect = async () => {
+export const connect = async () => {
   if (client) {
     return client;
   }
-
+  
   client =  await createClient({
     url: process.env.REDIS_URL,
   })
@@ -14,7 +14,6 @@ const connect = async () => {
 
   return client;
 }
-
 export const redisTotalConnections = async () => {
   try {
     const client = await connect();
@@ -40,13 +39,20 @@ export const redisHealth = async () => {
 
 export const redisSet = async (k: string, v: string) => {
   const client = await connect();
-  return client.set(k,v);
+  return await client.set(k,v);
 };
 
 export const redisGet = async (k: string) => {
   const client = await connect();
-  return client.get(k);
+  return await client.get(k);
 };
 
-
-
+export const sendCommand = async (args:any) => {
+  try {
+    const client = await connect();
+    return await client.sendCommand(args)
+  } catch (error) {
+    console.error('Redis could not send command:', error);
+    return 0;
+  }
+}

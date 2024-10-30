@@ -5,13 +5,20 @@ import { connect } from "./connection/connection";
 import { ObjectId } from "mongodb";
 import jwt from 'jsonwebtoken'
 import argon2 from "argon2";
+import { limiter } from "./helpers/limiter";
 
-const db = connect({ db: "users" });
 const app = express();
-// Middleware to parse incoming JSON payloads in request body
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+if (process.env.NODE_ENV === "production") {
+  console.log('Running in production mode');
+  app.use(limiter);
+} else {
+  console.log('Running in development mode');
+}
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
