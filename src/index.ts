@@ -112,7 +112,7 @@ app.post('/verify-token', async (req, res): Promise<void | any> => {
     const collection = db.collection("users");
     const user = await collection.findOne({ _id: new ObjectId(decoded.id) });
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json({ message: "Token is valid", valid: true });
   } catch (error) {

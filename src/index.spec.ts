@@ -1,4 +1,5 @@
 import "dotenv/config";
+import jwt from 'jsonwebtoken'
 describe("service", () => {
   const server = `http://localhost:${process.env.PORT || 3000}`;
   it("should fetch /", async () => {
@@ -196,6 +197,27 @@ describe("service", () => {
     });
 
     describe("/verify-token", () => {
+      it("should not find the user", async () => {
+        const token = jwt.sign({ 
+          email: 'nont-existent-account@test.com',
+         }, process.env.JWT_SECRET as string, {
+          expiresIn: "30d",        
+        });
+        console.log(token);
+        const response = await fetch(`${server}/verify-token`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token,
+          }),
+        });
+        expect(response.status).toBe(404);
+        const data = await response.json();
+        expect(data.message).toBe("User not found");
+      });
+
       it("should not verify the token because the token is INVALID", async () => {
         const response = await fetch(`${server}/verify-token`, {
           method: "POST",
@@ -226,7 +248,7 @@ describe("service", () => {
         const data = await response.json();
         expect(data.message).toBe("User logged in");
         expect(data.token).toBeDefined();
-        
+
         const verifyResponse = await fetch(`${server}/verify-token`, {
           method: "POST",
           headers: {
