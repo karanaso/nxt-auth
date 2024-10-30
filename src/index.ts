@@ -1,11 +1,13 @@
 import "dotenv/config"
 import express from "express";
 import cors from "cors";
-import { connect } from "./connection/connection";
-import { ObjectId } from "mongodb";
 import jwt from 'jsonwebtoken'
 import argon2 from "argon2";
+import md5 from "md5";
+import { connect } from "./connection/connection";
+import { ObjectId } from "mongodb";
 import { limiter } from "./helpers/limiter";
+import { redisDelete, redisGet, redisSet } from "./connection/redis";
 
 const app = express();
 
@@ -65,6 +67,10 @@ app.post('/signin', async (req, res): Promise<void | any> => {
        }, process.env.JWT_SECRET as string, {
         expiresIn: "30d",        
       });
+
+      // Store the token in Redis
+      await redisSet(md5(token),'ok');
+
       res.status(200).json({ 
         token,
         message: "User logged in"
@@ -99,6 +105,10 @@ app.post('/refresh-token', async (req, res): Promise<void | any> => {
       expiresIn: "30d",
     });
 
+    // Store the token in Redis
+    await redisDelete(md5(token));
+    await redisSet(md5(newToken),'ok');
+
     res.status(200).json({
       token: newToken,
       message: "Token refreshed successfully"
@@ -113,6 +123,12 @@ app.post('/verify-token', async (req, res): Promise<void | any> => {
   if (!token) {
     return res.status(400).json({ message: "Token is required" });
   }
+
+  const redisToken = await redisGet(md5(token));
+  if (!redisToken) {
+    return res.status(401).json({ message: "Invalid token in redis" });
+  }
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string; email: string };
     const db = await connect({ db: "users" });
@@ -124,6 +140,20 @@ app.post('/verify-token', async (req, res): Promise<void | any> => {
     res.status(200).json({ message: "Token is valid", valid: true });
   } catch (error) {
     res.status(401).json({ message: "Invalid token" });
+  }
+});
+
+app.post('/signout', async (req, res): Promise<void | any> => {
+  try {
+    const { authorization } = req.headers;
+    const token = authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(400).json({ message: "Token is required" });
+    }
+    await redisDelete(md5(token));
+    res.json({ message: "User logged out" });
+  } catch (e) {
+    res.status(400).json({ message: "Error logging out" });
   }
 });
 

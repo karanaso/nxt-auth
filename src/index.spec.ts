@@ -1,5 +1,5 @@
 import "dotenv/config";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 describe("service", () => {
   const server = `http://localhost:${process.env.PORT || 3000}`;
   it("should fetch /", async () => {
@@ -198,11 +198,15 @@ describe("service", () => {
 
     describe("/verify-token", () => {
       it("should not find the user", async () => {
-        const token = jwt.sign({ 
-          email: 'nont-existent-account@test.com',
-         }, process.env.JWT_SECRET as string, {
-          expiresIn: "30d",        
-        });
+        const token = jwt.sign(
+          {
+            email: "nont-existent-account@test.com",
+          },
+          process.env.JWT_SECRET as string,
+          {
+            expiresIn: "30d",
+          }
+        );
         const response = await fetch(`${server}/verify-token`, {
           method: "POST",
           headers: {
@@ -212,9 +216,9 @@ describe("service", () => {
             token,
           }),
         });
-        expect(response.status).toBe(404);
+        expect(response.status).toBe(401);
         const data = await response.json();
-        expect(data.message).toBe("User not found");
+        expect(data.message).toBe("Invalid token in redis");
       });
 
       it("should not verify the token because the token is INVALID", async () => {
@@ -229,7 +233,47 @@ describe("service", () => {
         });
         expect(response.status).toBe(401);
         const data = await response.json();
-        expect(data.message).toBe("Invalid token");
+        expect(data.message).toBe("Invalid token in redis");
+      });
+
+      it("should not verify the token because the user has logged out", async () => {
+        const response = await fetch(`${server}/signin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(data.message).toBe("User logged in");
+        expect(data.token).toBeDefined();
+
+        // logout 
+        await fetch(`${server}/signout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${data.token}`,            
+          },
+        });
+
+        const verifyResponse = await fetch(`${server}/verify-token`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: data.token,
+          }),
+        });
+
+        expect(verifyResponse.status).toBe(401);
+        const verifyData = await verifyResponse.json();
+        expect(verifyData.message).toBe("Invalid token in redis");
       });
 
       it("should verify the token", async () => {

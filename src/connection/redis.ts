@@ -42,11 +42,16 @@ export const redisSet = async (k: string, v: string) => {
   return await client.set(k,v);
 };
 
+
 export const redisGet = async (k: string) => {
   const client = await connect();
   return await client.get(k);
 };
 
+export const redisDelete = async (k: string) => {
+  const client = await connect()
+  return await client.del(k)
+}
 export const sendCommand = async (args:any) => {
   try {
     const client = await connect();
