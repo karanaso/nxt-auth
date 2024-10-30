@@ -1,8 +1,8 @@
-
+import "dotenv/config"
 describe("service", () => { 
-
+  const server = `http://localhost:${process.env.PORT || 3000}`;
   it("should fetch /", async () => {
-    const response = await fetch("http://localhost:3000");
+    const response = await fetch(server);
     expect(response.status).toBe(200);
   });
 
@@ -12,7 +12,7 @@ describe("service", () => {
 
     describe("/signup", () => {
       it("should fail /signup because email is not set", async () => {
-        const response = await fetch("http://localhost:3000/signup", {
+        const response = await fetch(`${server}/signup`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -25,7 +25,7 @@ describe("service", () => {
       });
 
       it("should fail /signup because password is not set", async () => {
-        const response = await fetch("http://localhost:3000/signup", {
+        const response = await fetch(`${server}/signup`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -39,7 +39,7 @@ describe("service", () => {
       });
 
       it("should pass /signup", async () => {
-        const response = await fetch("http://localhost:3000/signup", {
+        const response = await fetch(`${server}/signup`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -58,7 +58,7 @@ describe("service", () => {
 
     describe("/signin", () => {
       it("should fail /signin because email is not set", async () => {
-        const response = await fetch("http://localhost:3000/signin", {
+        const response = await fetch(`${server}/signin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -70,7 +70,7 @@ describe("service", () => {
       });
 
       it("should fail /signin because email is not set", async () => {
-        const response = await fetch("http://localhost:3000/signin", {
+        const response = await fetch(`${server}/signin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -85,7 +85,7 @@ describe("service", () => {
       });
 
       it("should fail /signin because email does not exist", async () => {
-        const response = await fetch("http://localhost:3000/signin", {
+        const response = await fetch(`${server}/signin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -101,7 +101,7 @@ describe("service", () => {
       });
 
       it("should fail /signin because password is incorrect", async () => {
-        const response = await fetch("http://localhost:3000/signin", {
+        const response = await fetch(`${server}/signin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -117,7 +117,7 @@ describe("service", () => {
       });
 
       it("should pass /signin ", async () => {
-        const response = await fetch("http://localhost:3000/signin", {
+        const response = await fetch(`${server}/signin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -136,7 +136,7 @@ describe("service", () => {
 
     describe('/refresh-token', () => {
       it('should not refresh the token because the token is not set', async () => {
-        const response = await fetch("http://localhost:3000/refresh-token", {
+        const response = await fetch(`${server}/refresh-token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -148,7 +148,7 @@ describe("service", () => {
       });
 
       it('should not refresh the token because the token is INVALID', async () => {
-        const response = await fetch("http://localhost:3000/refresh-token", {
+        const response = await fetch(`${server}/refresh-token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -163,7 +163,7 @@ describe("service", () => {
       });
 
       it('should refresh the token', async () => {
-          const response = await fetch("http://localhost:3000/signin", {
+          const response = await fetch(`${server}/signin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -178,7 +178,7 @@ describe("service", () => {
         expect(data.message).toBe("User logged in");
         expect(data.token).toBeDefined();
 
-        const refreshResponse = await fetch("http://localhost:3000/refresh-token", {
+        const refreshResponse = await fetch(`${server}/refresh-token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

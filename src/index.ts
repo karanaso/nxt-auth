@@ -100,7 +100,6 @@ app.post('/refresh-token', async (req, res): Promise<void | any> => {
     res.status(401).json({ message: "Invalid token" });
   }
 });
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });
