@@ -203,7 +203,6 @@ describe("service", () => {
          }, process.env.JWT_SECRET as string, {
           expiresIn: "30d",        
         });
-        console.log(token);
         const response = await fetch(`${server}/verify-token`, {
           method: "POST",
           headers: {
