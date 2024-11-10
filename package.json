@@ -10,7 +10,7 @@
     "test-watch": "jest --watchAll \"./src/**/*.spec.ts\"",
     "test-dev": "npm run test-watch",
     "test": "npm run build && npm run test-watch",
-    "dev": "export NODE_ENV=development; npm run tsc-watch & npm run node-watch",
+    "dev": "export NODE_ENV=development; npm run tsc-watch & npm run node-watch build/",
     "tsc-watch": "tsc --watch",
     "node-watch": "nodemon ./build/index.js",
     "build": "export NODE_ENV=production; tsc --build"
